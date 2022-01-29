@@ -14,12 +14,12 @@ import 'package:quick_look/quick_look.dart';
 ...
 
 final byteData = await rootBundle.load('assets/$path');
-                final String directory =
-                    (await getApplicationDocumentsDirectory()).path;
-                final tempFile = await File('$directory/$path').writeAsBytes(
-                    byteData.buffer.asUint8List(
-                        byteData.offsetInBytes, byteData.lengthInBytes));
-                await QuickLook.openURL(tempFile.path);
+final String directory =
+    (await getApplicationDocumentsDirectory()).path;
+final tempFile = await File('$directory/$path').writeAsBytes(
+    byteData.buffer.asUint8List(
+        byteData.offsetInBytes, byteData.lengthInBytes));
+await QuickLook.openURL(tempFile.path);
 ```
 
 ### To see, which kind of files you can open, see [Apple Documentation](https://developer.apple.com/documentation/quicklook)

@@ -6,3 +6,8 @@
 ## 0.0.2
 
 * Ability to open muitiple assets with `openURLs(List<String> _)` method
+
+
+## 0.0.3
+
+* `README.md` typos fix
