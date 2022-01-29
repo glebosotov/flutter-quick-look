@@ -31,19 +31,50 @@ class _MyAppState extends State<MyApp> {
           title: const Text('QuickLook for iOS'),
         ),
         body: Center(
-          child: TextButton(
-              onPressed: () async {
-                const path = 'lorem_ipsum.pdf';
-                final byteData = await rootBundle.load('assets/$path');
-                final String directory =
-                    (await getApplicationDocumentsDirectory()).path;
-                final tempFile = await File('$directory/$path').writeAsBytes(
-                    byteData.buffer.asUint8List(
-                        byteData.offsetInBytes, byteData.lengthInBytes));
-                await QuickLook.openURL(tempFile.path);
-              },
-              child:
-                  const Text('Open demo PDF', style: TextStyle(fontSize: 40))),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextButton(
+                  onPressed: () async {
+                    const path = 'lorem_ipsum.pdf';
+                    final byteData = await rootBundle.load('assets/$path');
+                    final String directory =
+                        (await getApplicationDocumentsDirectory()).path;
+                    final tempFile = await File('$directory/$path')
+                        .writeAsBytes(byteData.buffer.asUint8List(
+                            byteData.offsetInBytes, byteData.lengthInBytes));
+                    await QuickLook.openURL(tempFile.path);
+                  },
+                  child: const Text('Open single demo PDF',
+                      style: TextStyle(fontSize: 36),
+                      textAlign: TextAlign.center)),
+              TextButton(
+                  onPressed: () async {
+                    const paths = [
+                      'lorem_ipsum.pdf',
+                      'image1.jpg',
+                      'image2.jpg'
+                    ];
+                    final String directory =
+                        (await getApplicationDocumentsDirectory()).path;
+                    var finalPaths = <String>[];
+                    for (final path in paths) {
+                      final byteData = await rootBundle.load('assets/$path');
+                      final tempFile = await File('$directory/$path')
+                          .writeAsBytes(byteData.buffer.asUint8List(
+                              byteData.offsetInBytes, byteData.lengthInBytes));
+                      finalPaths.add(tempFile.path);
+                    }
+                    await QuickLook.openURLs(finalPaths);
+                  },
+                  child: const Text('Open multiple assets',
+                      style: TextStyle(fontSize: 36),
+                      textAlign: TextAlign.center)),
+              Text(
+                  "Photos from \nhttps://unsplash.com/photos/QeVmJxZOv3k\nhttps://unsplash.com/photos/Yh2Y8avvPec")
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,6 @@
 name: quick_look
 description: Package for opening files in iOS QuickLook.
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/glebosotov/flutter-quick-look
 
 environment:

@@ -10,14 +10,25 @@ public class SwiftQuickLookPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-      if let resourceURL = call.arguments as? String {
-          if let rootViewController = topViewController() {
-              let quickLookVC = QuickLookViewController(resourceURL)
-              rootViewController.present(quickLookVC, animated: true)
-              result(true)
-          }
+      if call.method == "openURL" {
+        if let resourceURL = call.arguments as? String {
+            if let rootViewController = topViewController() {
+                let quickLookVC = QuickLookViewController([resourceURL])
+                rootViewController.present(quickLookVC, animated: true)
+                result(true)
+            }
+        }
+        result(false)
+      } else if call.method == "openURLs" {
+          if let resourceURLs = call.arguments as? [String] {
+            if let rootViewController = topViewController() {
+                let quickLookVC = QuickLookViewController(resourceURLs)
+                rootViewController.present(quickLookVC, animated: true)
+                result(true)
+            }
+        }
+        result(false)
       }
-      result(false)
   }
     
     private func topViewController() -> UIViewController? {
@@ -36,11 +47,11 @@ public class SwiftQuickLookPlugin: NSObject, FlutterPlugin {
 
 class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
     
-    var urlOfResource: String
+    var urlsOfResources: [String]
     var shownResource: Bool = false
     
-    init(_ resourceURL: String) {
-        self.urlOfResource = "file://\(resourceURL)"
+    init(_ resourceURLs: [String]) {
+        self.urlsOfResources = resourceURLs.map{ "file://\($0)"}
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -60,11 +71,11 @@ class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
     }
     
     func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
-        return 1
+        return self.urlsOfResources.count
     }
     
     func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
-        let url = URL(string: self.urlOfResource)!
+        let url = URL(string: self.urlsOfResources[index])!
         return url as QLPreviewItem
     }
 }

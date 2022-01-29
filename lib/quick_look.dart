@@ -9,4 +9,9 @@ class QuickLook {
     final success = await _channel.invokeMethod('openURL', url);
     return success;
   }
+
+  static Future<bool> openURLs(List<String> urls) async {
+    final success = await _channel.invokeMethod('openURLs', urls);
+    return success;
+  }
 }
