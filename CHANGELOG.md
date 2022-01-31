@@ -11,3 +11,7 @@
 ## 0.0.3
 
 * `README.md` typos fix
+
+## 0.0.4
+
+* Add documentation
