@@ -1,6 +1,6 @@
 # quick_look
 
-This plugin lets us to use Apple QuickLook (`QLPreviewController`).
+This plugin lets us use Apple QuickLook (`QLPreviewController`).
 
 ## Getting Started
 
