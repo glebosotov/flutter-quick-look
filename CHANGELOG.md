@@ -15,3 +15,8 @@
 ## 0.0.4
 
 * Add documentation
+
+## 0.0.5
+
+* Update Android versions, so that it builds
+* Update dependencies

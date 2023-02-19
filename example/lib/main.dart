@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
                   child: const Text('Open multiple assets',
                       style: TextStyle(fontSize: 36),
                       textAlign: TextAlign.center)),
-              Text(
+              const Text(
                   "Photos from \nhttps://unsplash.com/photos/QeVmJxZOv3k\nhttps://unsplash.com/photos/Yh2Y8avvPec")
             ],
           ),
