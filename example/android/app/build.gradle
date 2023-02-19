@@ -57,6 +57,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    namespace 'com.glebosotov.quick_look_example'
 }
 
 flutter {
