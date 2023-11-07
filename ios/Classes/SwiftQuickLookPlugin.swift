@@ -13,18 +13,18 @@ public class SwiftQuickLookPlugin: NSObject, FlutterPlugin {
       if call.method == "openURL" {
         if let resourceURL = call.arguments as? String {
             if let rootViewController = topViewController() {
-                let quickLookVC = QuickLookViewController([resourceURL])
+                let quickLookVC = QuickLookViewController([resourceURL], result)
                 rootViewController.present(quickLookVC, animated: true)
-                result(true)
+                return
             }
         }
         result(false)
       } else if call.method == "openURLs" {
           if let resourceURLs = call.arguments as? [String] {
             if let rootViewController = topViewController() {
-                let quickLookVC = QuickLookViewController(resourceURLs)
+                let quickLookVC = QuickLookViewController(resourceURLs, result)
                 rootViewController.present(quickLookVC, animated: true)
-                result(true)
+                return
             }
         }
         result(false)
@@ -49,9 +49,11 @@ class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
     
     var urlsOfResources: [String]
     var shownResource: Bool = false
+    var result: FlutterResult
     
-    init(_ resourceURLs: [String]) {
+    init(_ resourceURLs: [String], _ result: @escaping FlutterResult) {
         self.urlsOfResources = resourceURLs.map{ "file://\($0)"}
+        self.result = result
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -66,7 +68,7 @@ class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
             present(previewController, animated: true)
             shownResource = true
         } else {
-            self.dismiss(animated: true)
+            self.dismiss(animated: true, completion: { self.result(true) })
         }
     }
     
