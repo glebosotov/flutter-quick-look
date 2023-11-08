@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -23,33 +24,58 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Timer? _timer;
+  int secondsPassedSinceLastOpen = 0;
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+      ),
       home: Scaffold(
         appBar: AppBar(
           title: const Text('QuickLook for iOS'),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              TextButton(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Spacer(),
+                ElevatedButton(
                   onPressed: () async {
                     const path = 'lorem_ipsum.pdf';
                     final byteData = await rootBundle.load('assets/$path');
+                    setState(() {
+                      secondsPassedSinceLastOpen = 0;
+                    });
+                    _timer =
+                        Timer.periodic(const Duration(seconds: 1), (timer) {
+                      setState(() {
+                        secondsPassedSinceLastOpen++;
+                      });
+                    });
                     final String directory =
                         (await getApplicationDocumentsDirectory()).path;
                     final tempFile = await File('$directory/$path')
                         .writeAsBytes(byteData.buffer.asUint8List(
                             byteData.offsetInBytes, byteData.lengthInBytes));
                     await QuickLook.openURL(tempFile.path);
+                    _timer?.cancel();
                   },
                   child: const Text('Open single demo PDF',
-                      style: TextStyle(fontSize: 36),
-                      textAlign: TextAlign.center)),
-              TextButton(
+                      style: TextStyle(fontSize: 24),
+                      textAlign: TextAlign.center),
+                ),
+                ElevatedButton(
                   onPressed: () async {
                     const paths = [
                       'lorem_ipsum.pdf',
@@ -59,6 +85,15 @@ class _MyAppState extends State<MyApp> {
                     final String directory =
                         (await getApplicationDocumentsDirectory()).path;
                     var finalPaths = <String>[];
+                    setState(() {
+                      secondsPassedSinceLastOpen = 0;
+                    });
+                    _timer =
+                        Timer.periodic(const Duration(seconds: 1), (timer) {
+                      setState(() {
+                        secondsPassedSinceLastOpen++;
+                      });
+                    });
                     for (final path in paths) {
                       final byteData = await rootBundle.load('assets/$path');
                       final tempFile = await File('$directory/$path')
@@ -67,13 +102,33 @@ class _MyAppState extends State<MyApp> {
                       finalPaths.add(tempFile.path);
                     }
                     await QuickLook.openURLs(finalPaths);
+                    _timer?.cancel();
                   },
-                  child: const Text('Open multiple assets',
-                      style: TextStyle(fontSize: 36),
-                      textAlign: TextAlign.center)),
-              const Text(
-                  "Photos from \nhttps://unsplash.com/photos/QeVmJxZOv3k\nhttps://unsplash.com/photos/Yh2Y8avvPec")
-            ],
+                  child: const Text(
+                    'Open multiple assets',
+                    style: TextStyle(fontSize: 24),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Seconds since last open: $secondsPassedSinceLastOpen',
+                  style: const TextStyle(fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+                const Text(
+                  '(method awaits native modal close before resolving future)',
+                  style: TextStyle(fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+                const Spacer(),
+                const Text(
+                  'Photos from \nhttps://unsplash.com/photos/QeVmJxZOv3k\nhttps://unsplash.com/photos/Yh2Y8avvPec',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
         ),
       ),

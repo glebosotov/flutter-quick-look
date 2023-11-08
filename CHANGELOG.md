@@ -1,22 +1,27 @@
+# Changelog
+
 ## 0.0.1
 
-* Ability to open a single file in `QLPreviewController`.
-
+- Ability to open a single file in `QLPreviewController`.
 
 ## 0.0.2
 
-* Ability to open muitiple assets with `openURLs(List<String> _)` method
-
+- Ability to open muitiple assets with `openURLs(List<String> _)` method
 
 ## 0.0.3
 
-* `README.md` typos fix
+- `README.md` typos fix
 
 ## 0.0.4
 
-* Add documentation
+- Add documentation
 
 ## 0.0.5
 
-* Update Android versions, so that it builds
-* Update dependencies
+- Update Android versions, so that it builds
+- Update dependencies
+
+## 0.0.6
+
+- remove android support (was redundant) (#6)
+- openURL futures now resolve after native modal closes (#5)
