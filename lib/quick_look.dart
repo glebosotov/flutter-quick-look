@@ -13,11 +13,19 @@ class QuickLook {
     return success;
   }
 
-  /// Opens files saved at [urls] in iOS QuickLook (user can swipe between them)
+  /// Opens files saved at [resourceURLs] in iOS QuickLook (user can swipe between them)
+  ///
+  /// Sets the current item in view to [initialIndex]
   ///
   /// The files should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
-  static Future<bool> openURLs(List<String> urls) async {
-    final success = await _channel.invokeMethod('openURLs', urls);
+  static Future<bool> openURLs({
+    required List<String> resourceURLs,
+    int initialIndex = 0,
+  }) async {
+    final success = await _channel.invokeMethod('openURLs', {
+      'resourceURLs': resourceURLs,
+      'initialIndex': initialIndex,
+    });
     return success;
   }
 }
