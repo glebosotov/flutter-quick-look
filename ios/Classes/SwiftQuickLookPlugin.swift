@@ -3,40 +3,41 @@ import UIKit
 import QuickLook
 
 public class SwiftQuickLookPlugin: NSObject, FlutterPlugin {
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "quick_look", binaryMessenger: registrar.messenger())
-    let instance = SwiftQuickLookPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
-  }
-
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-      if call.method == "openURL" {
-        if let resourceURL = call.arguments as? String {
-            if let rootViewController = topViewController() {
-                let quickLookVC = QuickLookViewController([resourceURL],0, result)
-                rootViewController.present(quickLookVC, animated: true)
-                return
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        let channel = FlutterMethodChannel(name: "quick_look", binaryMessenger: registrar.messenger())
+        let instance = SwiftQuickLookPlugin()
+        registrar.addMethodCallDelegate(instance, channel: channel)
+    }
+    
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if call.method == "openURL" {
+            if let resourceURL = call.arguments as? String {
+                if let rootViewController = topViewController() {
+                    let quickLookVC = QuickLookViewController([resourceURL],0, result)
+                    rootViewController.present(quickLookVC, animated: true)
+                    return
+                }
             }
-        }
-        result(false)
-      } else if call.method == "openURLs" {
-          if let resourceURLs = (call.arguments as? NSDictionary)?["resourceURLs"]as? [String]{
-                    if let initialIndex = (call.arguments as? NSDictionary)?["initialIndex"] as? Int
-                      {
-                        if let rootViewController = topViewController() {
-                        let quickLookVC = QuickLookViewController(resourceURLs, initialIndex, result)
+            result(false)
+        } else if call.method == "openURLs" {
+            if let resourceURLs = (call.arguments as? NSDictionary)?["resourceURLs"]as? [String]{
+                if let initialIndex = (call.arguments as? NSDictionary)?["initialIndex"] as? Int
+                {
+                    let urls = resourceURLs.map { $0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "" }
+                    if let rootViewController = topViewController() {
+                        let quickLookVC = QuickLookViewController(urls, initialIndex, result)
                         rootViewController.present(quickLookVC, animated: true)
                         return
                     }
                 }
+            }
+            result(false)
         }
-        result(false)
-      }
-  }
+    }
     
     private func topViewController() -> UIViewController? {
         let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-
+        
         if var topController = keyWindow?.rootViewController {
             while let presentedViewController = topController.presentedViewController {
                 topController = presentedViewController
