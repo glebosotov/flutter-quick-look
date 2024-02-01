@@ -101,7 +101,10 @@ class _MyAppState extends State<MyApp> {
                               byteData.offsetInBytes, byteData.lengthInBytes));
                       finalPaths.add(tempFile.path);
                     }
-                    await QuickLook.openURLs(finalPaths);
+                    await QuickLook.openURLs(
+                      resourceURLs: finalPaths,
+                      initialIndex: finalPaths.length - 1,
+                    );
                     _timer?.cancel();
                   },
                   child: const Text(
