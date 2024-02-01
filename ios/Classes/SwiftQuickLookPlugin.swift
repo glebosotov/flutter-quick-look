@@ -23,9 +23,8 @@ public class SwiftQuickLookPlugin: NSObject, FlutterPlugin {
             if let resourceURLs = (call.arguments as? NSDictionary)?["resourceURLs"]as? [String]{
                 if let initialIndex = (call.arguments as? NSDictionary)?["initialIndex"] as? Int
                 {
-                    let urls = resourceURLs.map { $0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "" }
                     if let rootViewController = topViewController() {
-                        let quickLookVC = QuickLookViewController(urls, initialIndex, result)
+                        let quickLookVC = QuickLookViewController(resourceURLs, initialIndex, result)
                         rootViewController.present(quickLookVC, animated: true)
                         return
                     }
@@ -57,7 +56,8 @@ class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
     var result: FlutterResult
     
     init(_ resourceURLs: [String],_ initialIndex: Int, _ result: @escaping FlutterResult) {
-        self.urlsOfResources = resourceURLs.map{ "file://\($0)"}
+        let urls = resourceURLs.map { $0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "" }
+        self.urlsOfResources = urls.map{ "file://\($0)"}
         self.result = result
         self.initialIndex = initialIndex
         super.init(nibName: nil, bundle: nil)
