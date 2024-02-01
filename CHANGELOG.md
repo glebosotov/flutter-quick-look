@@ -25,3 +25,7 @@
 
 - remove android support (was redundant) (#6)
 - openURL futures now resolve after native modal closes (#5)
+
+## 0.1.0
+
+- move to pigeon for communication
