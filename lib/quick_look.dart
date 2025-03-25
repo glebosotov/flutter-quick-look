@@ -38,4 +38,12 @@ class QuickLook {
       isDismissable: isDismissable,
     );
   }
+
+  /// Returns whether iOS QuickLook
+  /// supports the saved at [url] file type (and can preview it) or not
+  ///
+  /// The list of supported file types varies depending on iOS version
+  static Future<bool> canOpenURL(String url) {
+    return _api.canOpenURL(url);
+  }
 }

@@ -38,6 +38,7 @@ class _ScreenState extends State<_Screen> {
   }
 
   Timer? _timer;
+  bool? _canOpenFileType;
   int secondsPassedSinceLastOpen = 0;
   bool isDismissable = false;
 
@@ -62,6 +63,14 @@ class _ScreenState extends State<_Screen> {
                   ),
                 ),
                 ElevatedButton(
+                  onPressed: _openInvalidFile,
+                  child: const Text(
+                    'Try to open an unsupported file',
+                    style: TextStyle(fontSize: 24),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                ElevatedButton(
                   onPressed: _openImages,
                   child: const Text(
                     'Open multiple assets',
@@ -78,6 +87,12 @@ class _ScreenState extends State<_Screen> {
                 const Text(
                   '(method awaits native modal close before resolving future)',
                   style: TextStyle(fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Can open file: $_canOpenFileType',
+                  style: const TextStyle(fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
@@ -115,12 +130,32 @@ class _ScreenState extends State<_Screen> {
         byteData.lengthInBytes,
       ),
     );
-    await QuickLook.openURL(
-      tempFile.path,
-      isDismissable: isDismissable,
-    );
+
+    final canOpenUrl = await QuickLook.canOpenURL(tempFile.path);
+    setState(() {
+      _canOpenFileType = canOpenUrl;
+    });
+    if (canOpenUrl) {
+      await QuickLook.openURL(
+        tempFile.path,
+        isDismissable: isDismissable,
+      );
+    }
     _resetTimer();
     _timer?.cancel();
+  }
+
+  Future<void> _openInvalidFile() async {
+    const path = 'invalid.file';
+    final directory = await getApplicationDocumentsDirectory();
+    final directoryPath = directory.path;
+    final tempFile =
+        await File('$directoryPath/$path').writeAsBytes([1, 2, 3, 4]);
+
+    final canOpenUrl = await QuickLook.canOpenURL(tempFile.path);
+    setState(() {
+      _canOpenFileType = canOpenUrl;
+    });
   }
 
   Future<void> _openImages() async {
