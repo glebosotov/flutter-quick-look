@@ -55,7 +55,7 @@ class _ScreenState extends State<_Screen> {
               children: [
                 const Spacer(),
                 ElevatedButton(
-                  onPressed: () => _openAssetsFile(path: 'lorem_ipsum.pdf'),
+                  onPressed: _openPdf,
                   child: const Text(
                     'Open single demo PDF',
                     style: TextStyle(fontSize: 24),
@@ -63,9 +63,9 @@ class _ScreenState extends State<_Screen> {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () => _openAssetsFile(path: 'example_1mb.rar'),
+                  onPressed: _openInvalidFile,
                   child: const Text(
-                    'Try to open single demo RAR',
+                    'Try to open an unsupported file',
                     style: TextStyle(fontSize: 24),
                     textAlign: TextAlign.center,
                   ),
@@ -115,7 +115,8 @@ class _ScreenState extends State<_Screen> {
         ),
       );
 
-  Future<void> _openAssetsFile({required String path}) async {
+  Future<void> _openPdf() async {
+    const path = 'lorem_ipsum.pdf';
     final byteData = await rootBundle.load('assets/$path');
     _resetTimer();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -142,6 +143,19 @@ class _ScreenState extends State<_Screen> {
     }
     _resetTimer();
     _timer?.cancel();
+  }
+
+  Future<void> _openInvalidFile() async {
+    const path = 'invalid.file';
+    final directory = await getApplicationDocumentsDirectory();
+    final directoryPath = directory.path;
+    final tempFile =
+        await File('$directoryPath/$path').writeAsBytes([1, 2, 3, 4]);
+
+    final canOpenUrl = await QuickLook.canOpenURL(tempFile.path);
+    setState(() {
+      _canOpenFileType = canOpenUrl;
+    });
   }
 
   Future<void> _openImages() async {
