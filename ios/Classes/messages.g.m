@@ -129,7 +129,8 @@ void SetUpQLQuickLookApiWithSuffix(id<FlutterBinaryMessenger> binaryMessenger, N
       [channel setMessageHandler:nil];
     }
   }
-  /// Returns whether iOS QuickLook supports the saved at [url] file type (and can preview it) or not
+  /// Returns whether iOS QuickLook
+  /// supports the saved at [url] file type (and can preview it) or not
   ///
   /// The list of supported file types varies depending on iOS version
   {

@@ -31,7 +31,8 @@ NSObject<FlutterMessageCodec> *QLGetMessagesCodec(void);
 ///
 /// The files should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
 - (void)openURLsResourceURLs:(NSArray<NSString *> *)resourceURLs initialIndex:(NSInteger)initialIndex isDismissable:(BOOL)isDismissable completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
-/// Returns whether iOS QuickLook supports the saved at [url] file type (and can preview it) or not
+/// Returns whether iOS QuickLook
+/// supports the saved at [url] file type (and can preview it) or not
 ///
 /// The list of supported file types varies depending on iOS version
 - (void)canOpenURLUrl:(NSString *)url completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
