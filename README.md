@@ -19,7 +19,10 @@ final String directory =
 final tempFile = await File('$directory/$path').writeAsBytes(
     byteData.buffer.asUint8List(
         byteData.offsetInBytes, byteData.lengthInBytes));
-await QuickLook.openURL(tempFile.path, isDismissable: true);
+final bool canOpenUrl = await QuickLook.canOpenURL(tempFile.path);
+if (canOpenUrl) {
+    await QuickLook.openURL(tempFile.path, isDismissable: true);
+}
 ```
 
 ### To see, which kind of files you can open, see [Apple Documentation](https://developer.apple.com/documentation/quicklook)
