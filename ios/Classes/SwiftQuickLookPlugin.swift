@@ -39,7 +39,13 @@ public class SwiftQuickLookPlugin: NSObject, FlutterPlugin, QLQuickLookApi {
     }
   
     public func canOpenURLUrl(_ url: String, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
-      completion(true, nil)
+        if let uri = URL(string: "file://\(url)") {
+            let previewItem = uri as QLPreviewItem
+            let canPreviewUrl = QLPreviewController.canPreview(previewItem)
+            completion(canPreviewUrl as NSNumber, nil)
+        } else {
+            completion(false, nil)
+        }
     }
 
     private func topViewController() -> UIViewController? {
