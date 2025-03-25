@@ -1,6 +1,6 @@
 name: quick_look
 description: Package for opening files in iOS QuickLook. You will first need to save the files to the ApplicationDocumentsDirectory().
-version: 0.1.0
+version: 0.2.0
 homepage: https://github.com/glebosotov/flutter-quick-look
 
 environment:

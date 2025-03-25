@@ -29,3 +29,9 @@
 ## 0.1.0
 
 - move to pigeon for communication
+
+## 0.2.0
+
+- add isDismissable (#10)
+- up flutter and pigeon version (#11)
+- add canOpenUrl (#12)
