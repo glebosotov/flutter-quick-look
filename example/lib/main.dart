@@ -104,6 +104,7 @@ class _MyAppState extends State<MyApp> {
                     await QuickLook.openURLs(
                       resourceURLs: finalPaths,
                       initialIndex: finalPaths.length - 1,
+                      isDismissable: false,
                     );
                     _timer?.cancel();
                   },

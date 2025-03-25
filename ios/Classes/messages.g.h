@@ -17,11 +17,14 @@ NSObject<FlutterMessageCodec> *QLQuickLookApiGetCodec(void);
 @protocol QLQuickLookApi
 /// Opens file saved at [url] in iOS QuickLook
 ///
+/// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
+///
 /// The file should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
-- (void)openURLUrl:(NSString *)url completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
+- (void)openURLUrl:(NSString *)url isDismissable:(BOOL)isDismissable completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
 /// Opens files saved at [resourceURLs] in iOS QuickLook (user can swipe between them)
 ///
 /// Sets the current item in view to [initialIndex]
+/// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
 ///
 /// The files should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
 - (void)openURLsResourceURLs:(NSArray<NSString *> *)resourceURLs initialIndex:(NSInteger)initialIndex completion:(void (^)(NSNumber *_Nullable, FlutterError *_Nullable))completion;
