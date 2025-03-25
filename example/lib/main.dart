@@ -38,6 +38,7 @@ class _ScreenState extends State<_Screen> {
   }
 
   Timer? _timer;
+  bool? _canOpenFileType;
   int secondsPassedSinceLastOpen = 0;
   bool isDismissable = false;
 
@@ -54,9 +55,17 @@ class _ScreenState extends State<_Screen> {
               children: [
                 const Spacer(),
                 ElevatedButton(
-                  onPressed: _openPdf,
+                  onPressed: () => _openAssetsFile(path: 'lorem_ipsum.pdf'),
                   child: const Text(
                     'Open single demo PDF',
+                    style: TextStyle(fontSize: 24),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => _openAssetsFile(path: 'example_1mb.rar'),
+                  child: const Text(
+                    'Try to open single demo RAR',
                     style: TextStyle(fontSize: 24),
                     textAlign: TextAlign.center,
                   ),
@@ -81,6 +90,12 @@ class _ScreenState extends State<_Screen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
+                Text(
+                  'Can open file: $_canOpenFileType',
+                  style: const TextStyle(fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
                 ListTile(
                   leading: const Text('isDismissable'),
                   trailing: Switch(
@@ -100,8 +115,7 @@ class _ScreenState extends State<_Screen> {
         ),
       );
 
-  Future<void> _openPdf() async {
-    const path = 'lorem_ipsum.pdf';
+  Future<void> _openAssetsFile({required String path}) async {
     final byteData = await rootBundle.load('assets/$path');
     _resetTimer();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -115,10 +129,17 @@ class _ScreenState extends State<_Screen> {
         byteData.lengthInBytes,
       ),
     );
-    await QuickLook.openURL(
-      tempFile.path,
-      isDismissable: isDismissable,
-    );
+
+    final canOpenUrl = await QuickLook.canOpenURL(tempFile.path);
+    setState(() {
+      _canOpenFileType = canOpenUrl;
+    });
+    if (canOpenUrl) {
+      await QuickLook.openURL(
+        tempFile.path,
+        isDismissable: isDismissable,
+      );
+    }
     _resetTimer();
     _timer?.cancel();
   }
