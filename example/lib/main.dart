@@ -30,6 +30,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Timer? _timer;
+  bool? _canOpenFileType;
   int secondsPassedSinceLastOpen = 0;
 
   @override
@@ -50,6 +51,32 @@ class _MyAppState extends State<MyApp> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Spacer(),
+                ElevatedButton(
+                  onPressed: () async {
+                    const path = 'lorem_ipsum.pdf';
+                    final byteData = await rootBundle.load('assets/$path');
+                    final String directory =
+                        (await getApplicationDocumentsDirectory()).path;
+                    final tempFile = await File('$directory/$path')
+                        .writeAsBytes(byteData.buffer.asUint8List(
+                            byteData.offsetInBytes, byteData.lengthInBytes));
+                    final bool canOpenUrl =
+                        await QuickLook.canOpenURL(tempFile.path);
+                    setState(() {
+                      _canOpenFileType = canOpenUrl;
+                    });
+                  },
+                  child: const Text('Check if can open .pdf',
+                      style: TextStyle(fontSize: 24),
+                      textAlign: TextAlign.center),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Can open filetype: $_canOpenFileType',
+                  style: const TextStyle(fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () async {
                     const path = 'lorem_ipsum.pdf';
