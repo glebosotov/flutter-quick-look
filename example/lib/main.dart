@@ -70,6 +70,25 @@ class _MyAppState extends State<MyApp> {
                       style: TextStyle(fontSize: 24),
                       textAlign: TextAlign.center),
                 ),
+                ElevatedButton(
+                  onPressed: () async {
+                    const path = 'example_1mb.rar';
+                    final byteData = await rootBundle.load('assets/$path');
+                    final String directory =
+                        (await getApplicationDocumentsDirectory()).path;
+                    final tempFile = await File('$directory/$path')
+                        .writeAsBytes(byteData.buffer.asUint8List(
+                            byteData.offsetInBytes, byteData.lengthInBytes));
+                    final bool canOpenUrl =
+                        await QuickLook.canOpenURL(tempFile.path);
+                    setState(() {
+                      _canOpenFileType = canOpenUrl;
+                    });
+                  },
+                  child: const Text('Check if can open .rar',
+                      style: TextStyle(fontSize: 24),
+                      textAlign: TextAlign.center),
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'Can open filetype: $_canOpenFileType',
