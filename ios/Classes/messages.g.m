@@ -36,6 +36,8 @@ NSObject<FlutterMessageCodec> *QLQuickLookApiGetCodec(void) {
 void SetUpQLQuickLookApi(id<FlutterBinaryMessenger> binaryMessenger, NSObject<QLQuickLookApi> *api) {
   /// Opens file saved at [url] in iOS QuickLook
   ///
+  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
+  ///
   /// The file should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
   {
     FlutterBasicMessageChannel *channel =
@@ -44,11 +46,12 @@ void SetUpQLQuickLookApi(id<FlutterBinaryMessenger> binaryMessenger, NSObject<QL
         binaryMessenger:binaryMessenger
         codec:QLQuickLookApiGetCodec()];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(openURLUrl:completion:)], @"QLQuickLookApi api (%@) doesn't respond to @selector(openURLUrl:completion:)", api);
+      NSCAssert([api respondsToSelector:@selector(openURLUrl:isDismissable:completion:)], @"QLQuickLookApi api (%@) doesn't respond to @selector(openURLUrl:isDismissable:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
         NSString *arg_url = GetNullableObjectAtIndex(args, 0);
-        [api openURLUrl:arg_url completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
+        BOOL arg_isDismissable = [GetNullableObjectAtIndex(args, 1) boolValue];
+        [api openURLUrl:arg_url isDismissable:arg_isDismissable completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];
@@ -59,6 +62,7 @@ void SetUpQLQuickLookApi(id<FlutterBinaryMessenger> binaryMessenger, NSObject<QL
   /// Opens files saved at [resourceURLs] in iOS QuickLook (user can swipe between them)
   ///
   /// Sets the current item in view to [initialIndex]
+  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
   ///
   /// The files should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
   {
@@ -68,12 +72,13 @@ void SetUpQLQuickLookApi(id<FlutterBinaryMessenger> binaryMessenger, NSObject<QL
         binaryMessenger:binaryMessenger
         codec:QLQuickLookApiGetCodec()];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(openURLsResourceURLs:initialIndex:completion:)], @"QLQuickLookApi api (%@) doesn't respond to @selector(openURLsResourceURLs:initialIndex:completion:)", api);
+      NSCAssert([api respondsToSelector:@selector(openURLsResourceURLs:initialIndex:isDismissable:completion:)], @"QLQuickLookApi api (%@) doesn't respond to @selector(openURLsResourceURLs:initialIndex:isDismissable:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
         NSArray *args = message;
         NSArray<NSString *> *arg_resourceURLs = GetNullableObjectAtIndex(args, 0);
         NSInteger arg_initialIndex = [GetNullableObjectAtIndex(args, 1) integerValue];
-        [api openURLsResourceURLs:arg_resourceURLs initialIndex:arg_initialIndex completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
+        BOOL arg_isDismissable = [GetNullableObjectAtIndex(args, 2) boolValue];
+        [api openURLsResourceURLs:arg_resourceURLs initialIndex:arg_initialIndex isDismissable:arg_isDismissable completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
         }];
       }];

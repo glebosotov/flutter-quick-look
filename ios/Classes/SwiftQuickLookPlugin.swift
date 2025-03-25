@@ -11,10 +11,11 @@ public class SwiftQuickLookPlugin: NSObject, FlutterPlugin, QLQuickLookApi {
 
     public func openURLUrl(
         _ url: String,
+        isDismissable: Bool,
         completion: @escaping (NSNumber?, FlutterError?) -> Void
     ) {
         if let rootViewController = topViewController() {
-            let quickLookVC = QuickLookViewController([url], 0, completion)
+            let quickLookVC = QuickLookViewController([url], 0, isDismissable, completion)
             rootViewController.present(quickLookVC, animated: true)
         } else {
             completion(false, nil)
@@ -24,12 +25,14 @@ public class SwiftQuickLookPlugin: NSObject, FlutterPlugin, QLQuickLookApi {
     public func openURLsResourceURLs(
         _ resourceURLs: [String],
         initialIndex: Int,
+        isDismissable: Bool,
         completion: @escaping (NSNumber?, FlutterError?) -> Void
     ) {
         if let rootViewController = topViewController() {
             let quickLookVC = QuickLookViewController(
                 resourceURLs,
                 initialIndex,
+                isDismissable,
                 completion
             )
             rootViewController.present(quickLookVC, animated: true)
@@ -55,17 +58,20 @@ class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
     var urlsOfResources: [String]
     var shownResource: Bool = false
     var initialIndex: Int
+    var isDismissable: Bool
     var result: (NSNumber?, FlutterError?) -> Void
 
     init(
         _ resourceURLs: [String],
         _ initialIndex: Int,
+        _ isDismissable: Bool,
         _ result: @escaping (NSNumber?, FlutterError?) -> Void
     ) {
         let urls = resourceURLs.map { $0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "" }
         urlsOfResources = urls.map { "file://\($0)" }
         self.result = result
         self.initialIndex = initialIndex
+        self.isDismissable = isDismissable
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -79,6 +85,9 @@ class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
             let previewController = QLPreviewController()
             previewController.dataSource = self
             previewController.currentPreviewItemIndex = initialIndex
+            if #available(iOS 13.0, *) {
+              previewController.isModalInPresentation = !isDismissable
+            }
             present(previewController, animated: true)
             shownResource = true
         } else {
