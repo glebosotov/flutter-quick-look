@@ -81,4 +81,26 @@ void SetUpQLQuickLookApi(id<FlutterBinaryMessenger> binaryMessenger, NSObject<QL
       [channel setMessageHandler:nil];
     }
   }
+  /// Returns whether iOS QuickLook supports the saved at [url] file type (and can preview it) or not
+  ///
+  /// The list of supported file types varies depending on iOS version
+  {
+    FlutterBasicMessageChannel *channel =
+      [[FlutterBasicMessageChannel alloc]
+        initWithName:@"dev.flutter.pigeon.quick_look.QuickLookApi.canOpenURL"
+        binaryMessenger:binaryMessenger
+        codec:QLQuickLookApiGetCodec()];
+    if (api) {
+      NSCAssert([api respondsToSelector:@selector(canOpenURLUrl:completion:)], @"QLQuickLookApi api (%@) doesn't respond to @selector(canOpenURLUrl:completion:)", api);
+      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+        NSArray *args = message;
+        NSString *arg_url = GetNullableObjectAtIndex(args, 0);
+        [api canOpenURLUrl:arg_url completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
+          callback(wrapResult(output, error));
+        }];
+      }];
+    } else {
+      [channel setMessageHandler:nil];
+    }
+  }
 }

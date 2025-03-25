@@ -37,6 +37,10 @@ public class SwiftQuickLookPlugin: NSObject, FlutterPlugin, QLQuickLookApi {
             completion(false, nil)
         }
     }
+  
+    public func canOpenURLUrl(_ url: String, completion: @escaping (NSNumber?, FlutterError?) -> Void) {
+      completion(true, nil)
+    }
 
     private func topViewController() -> UIViewController? {
         let keyWindow = UIApplication.shared.windows.filter { $0.isKeyWindow }.first
