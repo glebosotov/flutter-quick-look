@@ -67,7 +67,9 @@ class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
         _ isDismissable: Bool,
         _ result: @escaping (NSNumber?, FlutterError?) -> Void
     ) {
-        let urls = resourceURLs.map { $0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "" }
+        let urls = resourceURLs.map {
+            $0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        }
         urlsOfResources = urls.map { "file://\($0)" }
         self.result = result
         self.initialIndex = initialIndex
@@ -80,13 +82,13 @@ class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewDidAppear(_: Bool) {
         if !shownResource {
             let previewController = QLPreviewController()
             previewController.dataSource = self
             previewController.currentPreviewItemIndex = initialIndex
             if #available(iOS 13.0, *) {
-              previewController.isModalInPresentation = !isDismissable
+                previewController.isModalInPresentation = !isDismissable
             }
             present(previewController, animated: true)
             shownResource = true
