@@ -135,13 +135,13 @@ void SetUpQLQuickLookApiWithSuffix(id<FlutterBinaryMessenger> binaryMessenger, N
   {
     FlutterBasicMessageChannel *channel =
       [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.quick_look.QuickLookApi.canOpenURL"
+        initWithName:[NSString stringWithFormat:@"%@%@", @"dev.flutter.pigeon.quick_look.QuickLookApi.canOpenURL", messageChannelSuffix]
         binaryMessenger:binaryMessenger
-        codec:QLQuickLookApiGetCodec()];
+        codec:QLGetMessagesCodec()];
     if (api) {
       NSCAssert([api respondsToSelector:@selector(canOpenURLUrl:completion:)], @"QLQuickLookApi api (%@) doesn't respond to @selector(canOpenURLUrl:completion:)", api);
       [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
-        NSArray *args = message;
+        NSArray<id> *args = message;
         NSString *arg_url = GetNullableObjectAtIndex(args, 0);
         [api canOpenURLUrl:arg_url completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
           callback(wrapResult(output, error));
