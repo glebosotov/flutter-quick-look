@@ -85,7 +85,9 @@ class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
             let previewController = QLPreviewController()
             previewController.dataSource = self
             previewController.currentPreviewItemIndex = initialIndex
-            previewController.isModalInPresentation = !isDismissable
+            if #available(iOS 13.0, *) {
+              previewController.isModalInPresentation = !isDismissable
+            }
             present(previewController, animated: true)
             shownResource = true
         } else {
