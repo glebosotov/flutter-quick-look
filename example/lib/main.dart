@@ -31,6 +31,7 @@ class _MyAppState extends State<MyApp> {
 
   Timer? _timer;
   int secondsPassedSinceLastOpen = 0;
+  bool isDismissable = false;
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +66,17 @@ class _MyAppState extends State<MyApp> {
                     });
                     final String directory =
                         (await getApplicationDocumentsDirectory()).path;
-                    final tempFile = await File('$directory/$path')
-                        .writeAsBytes(byteData.buffer.asUint8List(
-                            byteData.offsetInBytes, byteData.lengthInBytes));
-                    await QuickLook.openURL(tempFile.path);
+                    final tempFile =
+                        await File('$directory/$path').writeAsBytes(
+                      byteData.buffer.asUint8List(
+                        byteData.offsetInBytes,
+                        byteData.lengthInBytes,
+                      ),
+                    );
+                    await QuickLook.openURL(
+                      tempFile.path,
+                      isDismissable: isDismissable,
+                    );
                     _timer?.cancel();
                   },
                   child: const Text('Open single demo PDF',
@@ -90,21 +98,28 @@ class _MyAppState extends State<MyApp> {
                     });
                     _timer =
                         Timer.periodic(const Duration(seconds: 1), (timer) {
-                      setState(() {
-                        secondsPassedSinceLastOpen++;
-                      });
+                      setState(
+                        () {
+                          secondsPassedSinceLastOpen++;
+                        },
+                      );
                     });
                     for (final path in paths) {
                       final byteData = await rootBundle.load('assets/$path');
-                      final tempFile = await File('$directory/$path')
-                          .writeAsBytes(byteData.buffer.asUint8List(
-                              byteData.offsetInBytes, byteData.lengthInBytes));
+                      final tempFile = await File(
+                        '$directory/$path',
+                      ).writeAsBytes(
+                        byteData.buffer.asUint8List(
+                          byteData.offsetInBytes,
+                          byteData.lengthInBytes,
+                        ),
+                      );
                       finalPaths.add(tempFile.path);
                     }
                     await QuickLook.openURLs(
                       resourceURLs: finalPaths,
                       initialIndex: finalPaths.length - 1,
-                      isDismissable: false,
+                      isDismissable: isDismissable,
                     );
                     _timer?.cancel();
                   },
@@ -124,6 +139,16 @@ class _MyAppState extends State<MyApp> {
                   '(method awaits native modal close before resolving future)',
                   style: TextStyle(fontSize: 12),
                   textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  leading: Text('isDismissable'),
+                  trailing: Switch(
+                    value: isDismissable,
+                    onChanged: (newValue) => setState(
+                      () => isDismissable = newValue,
+                    ),
+                  ),
                 ),
                 const Spacer(),
                 const Text(
