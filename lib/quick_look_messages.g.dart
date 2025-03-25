@@ -27,7 +27,7 @@ class QuickLookApi {
 
   /// Opens file saved at [url] in iOS QuickLook
   ///
-  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
+  /// [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
   ///
   /// The file should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
   Future<bool> openURL(String url, {bool isDismissable = true}) async {
@@ -38,6 +38,7 @@ class QuickLookApi {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(<Object?>[url, isDismissable]) as List<Object?>?;
         await __pigeon_channel.send(<Object?>[url, isDismissable]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
@@ -60,9 +61,10 @@ class QuickLookApi {
   /// Opens files saved at [resourceURLs] in iOS QuickLook (user can swipe between them)
   ///
   /// Sets the current item in view to [initialIndex]
-  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
+  /// [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
   ///
   /// The files should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
+  Future<bool> openURLs({required List<String?> resourceURLs, int initialIndex = 0, bool isDismissable = true,}) async {
   Future<bool> openURLs({required List<String?> resourceURLs, int initialIndex = 0, bool isDismissable = true,}) async {
     const String __pigeon_channelName = 'dev.flutter.pigeon.quick_look.QuickLookApi.openURLs';
     final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
@@ -71,6 +73,7 @@ class QuickLookApi {
       binaryMessenger: __pigeon_binaryMessenger,
     );
     final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(<Object?>[resourceURLs, initialIndex, isDismissable]) as List<Object?>?;
         await __pigeon_channel.send(<Object?>[resourceURLs, initialIndex, isDismissable]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);

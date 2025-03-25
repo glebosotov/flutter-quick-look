@@ -16,7 +16,8 @@
 static NSArray *wrapResult(id result, FlutterError *error) {
   if (error) {
     return @[
-      error.code ?: [NSNull null], error.message ?: [NSNull null], error.details ?: [NSNull null]
+      error.code ?: [NSNull null], error.message ?: [NSNull null],
+      error.details ?: [NSNull null]
     ];
   }
   return @[ result ?: [NSNull null] ];
@@ -33,54 +34,79 @@ NSObject<FlutterMessageCodec> *QLQuickLookApiGetCodec(void) {
   return sSharedObject;
 }
 
-void SetUpQLQuickLookApi(id<FlutterBinaryMessenger> binaryMessenger, NSObject<QLQuickLookApi> *api) {
+void SetUpQLQuickLookApi(id<FlutterBinaryMessenger> binaryMessenger,
+                         NSObject<QLQuickLookApi> *api) {
   /// Opens file saved at [url] in iOS QuickLook
   ///
-  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
+  /// [isDismissable] configures whether QuickLook is dismissable by a swipe
+  /// from top to bottom
   ///
-  /// The file should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
+  /// The file should be saved at the ApplicationDocumentsDirectory (check out
+  /// the example at https://pub.dev/packages/quick_look/example)
   {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.quick_look.QuickLookApi.openURL"
+    FlutterBasicMessageChannel *channel = [[FlutterBasicMessageChannel alloc]
+           initWithName:@"dev.flutter.pigeon.quick_look.QuickLookApi.openURL"
         binaryMessenger:binaryMessenger
-        codec:QLQuickLookApiGetCodec()];
+                  codec:QLQuickLookApiGetCodec()];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(openURLUrl:isDismissable:completion:)], @"QLQuickLookApi api (%@) doesn't respond to @selector(openURLUrl:isDismissable:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+      NSCAssert([api respondsToSelector:@selector(openURLUrl:
+                                               isDismissable:completion:)],
+                @"QLQuickLookApi api (%@) doesn't respond to "
+                @"@selector(openURLUrl:isDismissable:completion:)",
+                api);
+      [channel setMessageHandler:^(id _Nullable message,
+                                   FlutterReply callback) {
         NSArray *args = message;
         NSString *arg_url = GetNullableObjectAtIndex(args, 0);
         BOOL arg_isDismissable = [GetNullableObjectAtIndex(args, 1) boolValue];
-        [api openURLUrl:arg_url isDismissable:arg_isDismissable completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
-          callback(wrapResult(output, error));
-        }];
+        [api openURLUrl:arg_url
+            isDismissable:arg_isDismissable
+               completion:^(NSNumber *_Nullable output,
+                            FlutterError *_Nullable error) {
+                 callback(wrapResult(output, error));
+               }];
       }];
     } else {
       [channel setMessageHandler:nil];
     }
   }
-  /// Opens files saved at [resourceURLs] in iOS QuickLook (user can swipe between them)
+  /// Opens files saved at [resourceURLs] in iOS QuickLook (user can swipe
+  /// between them)
   ///
   /// Sets the current item in view to [initialIndex]
-  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
+  /// [isDismissable] configures whether QuickLook is dismissable by a swipe
+  /// from top to bottom
   ///
-  /// The files should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
+  /// The files should be saved at the ApplicationDocumentsDirectory (check out
+  /// the example at https://pub.dev/packages/quick_look/example)
   {
-    FlutterBasicMessageChannel *channel =
-      [[FlutterBasicMessageChannel alloc]
-        initWithName:@"dev.flutter.pigeon.quick_look.QuickLookApi.openURLs"
+    FlutterBasicMessageChannel *channel = [[FlutterBasicMessageChannel alloc]
+           initWithName:@"dev.flutter.pigeon.quick_look.QuickLookApi.openURLs"
         binaryMessenger:binaryMessenger
-        codec:QLQuickLookApiGetCodec()];
+                  codec:QLQuickLookApiGetCodec()];
     if (api) {
-      NSCAssert([api respondsToSelector:@selector(openURLsResourceURLs:initialIndex:isDismissable:completion:)], @"QLQuickLookApi api (%@) doesn't respond to @selector(openURLsResourceURLs:initialIndex:isDismissable:completion:)", api);
-      [channel setMessageHandler:^(id _Nullable message, FlutterReply callback) {
+      NSCAssert([api respondsToSelector:@selector
+                     (openURLsResourceURLs:
+                              initialIndex:isDismissable:completion:)],
+                @"QLQuickLookApi api (%@) doesn't respond to "
+                @"@selector(openURLsResourceURLs:initialIndex:isDismissable:"
+                @"completion:)",
+                api);
+      [channel setMessageHandler:^(id _Nullable message,
+                                   FlutterReply callback) {
         NSArray *args = message;
-        NSArray<NSString *> *arg_resourceURLs = GetNullableObjectAtIndex(args, 0);
-        NSInteger arg_initialIndex = [GetNullableObjectAtIndex(args, 1) integerValue];
+        NSArray<NSString *> *arg_resourceURLs =
+            GetNullableObjectAtIndex(args, 0);
+        NSInteger arg_initialIndex =
+            [GetNullableObjectAtIndex(args, 1) integerValue];
         BOOL arg_isDismissable = [GetNullableObjectAtIndex(args, 2) boolValue];
-        [api openURLsResourceURLs:arg_resourceURLs initialIndex:arg_initialIndex isDismissable:arg_isDismissable completion:^(NSNumber *_Nullable output, FlutterError *_Nullable error) {
-          callback(wrapResult(output, error));
-        }];
+        [api openURLsResourceURLs:arg_resourceURLs
+                     initialIndex:arg_initialIndex
+                    isDismissable:arg_isDismissable
+                       completion:^(NSNumber *_Nullable output,
+                                    FlutterError *_Nullable error) {
+                         callback(wrapResult(output, error));
+                       }];
       }];
     } else {
       [channel setMessageHandler:nil];
