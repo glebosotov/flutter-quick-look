@@ -27,7 +27,7 @@ class QuickLookApi {
 
   /// Opens file saved at [url] in iOS QuickLook
   ///
-  /// [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
+  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
   ///
   /// The file should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
   Future<bool> openURL(String url, {bool isDismissable = true}) async {
@@ -60,7 +60,7 @@ class QuickLookApi {
   /// Opens files saved at [resourceURLs] in iOS QuickLook (user can swipe between them)
   ///
   /// Sets the current item in view to [initialIndex]
-  /// [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
+  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
   ///
   /// The files should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
   Future<bool> openURLs({required List<String?> resourceURLs, int initialIndex = 0, bool isDismissable = true,}) async {
