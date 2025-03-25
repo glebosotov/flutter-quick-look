@@ -7,22 +7,30 @@ import 'package:path_provider/path_provider.dart';
 import 'package:quick_look/quick_look.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const _App());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+class _App extends StatelessWidget {
+  const _App({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          useMaterial3: true,
+        ),
+        home: const _Screen(),
+      );
 }
 
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-  }
+class _Screen extends StatefulWidget {
+  const _Screen({Key? key}) : super(key: key);
 
+  @override
+  State<_Screen> createState() => _ScreenState();
+}
+
+class _ScreenState extends State<_Screen> {
   @override
   void dispose() {
     _timer?.cancel();
@@ -30,17 +38,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   Timer? _timer;
-  bool? _canOpenFileType;
   int secondsPassedSinceLastOpen = 0;
+  bool isDismissable = false;
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-      ),
-      home: Scaffold(
+  Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('QuickLook for iOS'),
         ),
@@ -52,108 +54,15 @@ class _MyAppState extends State<MyApp> {
               children: [
                 const Spacer(),
                 ElevatedButton(
-                  onPressed: () async {
-                    const path = 'lorem_ipsum.pdf';
-                    final byteData = await rootBundle.load('assets/$path');
-                    final String directory =
-                        (await getApplicationDocumentsDirectory()).path;
-                    final tempFile = await File('$directory/$path')
-                        .writeAsBytes(byteData.buffer.asUint8List(
-                            byteData.offsetInBytes, byteData.lengthInBytes));
-                    final bool canOpenUrl =
-                        await QuickLook.canOpenURL(tempFile.path);
-                    setState(() {
-                      _canOpenFileType = canOpenUrl;
-                    });
-                  },
-                  child: const Text('Check if can open .pdf',
-                      style: TextStyle(fontSize: 24),
-                      textAlign: TextAlign.center),
+                  onPressed: _openPdf,
+                  child: const Text(
+                    'Open single demo PDF',
+                    style: TextStyle(fontSize: 24),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 ElevatedButton(
-                  onPressed: () async {
-                    const path = 'example_1mb.rar';
-                    final byteData = await rootBundle.load('assets/$path');
-                    final String directory =
-                        (await getApplicationDocumentsDirectory()).path;
-                    final tempFile = await File('$directory/$path')
-                        .writeAsBytes(byteData.buffer.asUint8List(
-                            byteData.offsetInBytes, byteData.lengthInBytes));
-                    final bool canOpenUrl =
-                        await QuickLook.canOpenURL(tempFile.path);
-                    setState(() {
-                      _canOpenFileType = canOpenUrl;
-                    });
-                  },
-                  child: const Text('Check if can open .rar',
-                      style: TextStyle(fontSize: 24),
-                      textAlign: TextAlign.center),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Can open filetype: $_canOpenFileType',
-                  style: const TextStyle(fontSize: 18),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () async {
-                    const path = 'lorem_ipsum.pdf';
-                    final byteData = await rootBundle.load('assets/$path');
-                    setState(() {
-                      secondsPassedSinceLastOpen = 0;
-                    });
-                    _timer =
-                        Timer.periodic(const Duration(seconds: 1), (timer) {
-                      setState(() {
-                        secondsPassedSinceLastOpen++;
-                      });
-                    });
-                    final String directory =
-                        (await getApplicationDocumentsDirectory()).path;
-                    final tempFile = await File('$directory/$path')
-                        .writeAsBytes(byteData.buffer.asUint8List(
-                            byteData.offsetInBytes, byteData.lengthInBytes));
-                    await QuickLook.openURL(tempFile.path);
-                    _timer?.cancel();
-                  },
-                  child: const Text('Open single demo PDF',
-                      style: TextStyle(fontSize: 24),
-                      textAlign: TextAlign.center),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    const paths = [
-                      'lorem_ipsum.pdf',
-                      'image1.jpg',
-                      'image2.jpg'
-                    ];
-                    final String directory =
-                        (await getApplicationDocumentsDirectory()).path;
-                    var finalPaths = <String>[];
-                    setState(() {
-                      secondsPassedSinceLastOpen = 0;
-                    });
-                    _timer =
-                        Timer.periodic(const Duration(seconds: 1), (timer) {
-                      setState(() {
-                        secondsPassedSinceLastOpen++;
-                      });
-                    });
-                    for (final path in paths) {
-                      final byteData = await rootBundle.load('assets/$path');
-                      final tempFile = await File('$directory/$path')
-                          .writeAsBytes(byteData.buffer.asUint8List(
-                              byteData.offsetInBytes, byteData.lengthInBytes));
-                      finalPaths.add(tempFile.path);
-                    }
-                    await QuickLook.openURLs(
-                      resourceURLs: finalPaths,
-                      initialIndex: finalPaths.length - 1,
-                      isDismissable: false,
-                    );
-                    _timer?.cancel();
-                  },
+                  onPressed: _openImages,
                   child: const Text(
                     'Open multiple assets',
                     style: TextStyle(fontSize: 24),
@@ -171,6 +80,14 @@ class _MyAppState extends State<MyApp> {
                   style: TextStyle(fontSize: 12),
                   textAlign: TextAlign.center,
                 ),
+                const SizedBox(height: 12),
+                ListTile(
+                  leading: const Text('isDismissable'),
+                  trailing: Switch(
+                    value: isDismissable,
+                    onChanged: _toggleDismissable,
+                  ),
+                ),
                 const Spacer(),
                 const Text(
                   'Photos from \nhttps://unsplash.com/photos/QeVmJxZOv3k\nhttps://unsplash.com/photos/Yh2Y8avvPec',
@@ -181,7 +98,70 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
         ),
+      );
+
+  Future<void> _openPdf() async {
+    const path = 'lorem_ipsum.pdf';
+    final byteData = await rootBundle.load('assets/$path');
+    _resetTimer();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _incrementTimer();
+    });
+    final directory = await getApplicationDocumentsDirectory();
+    final directoryPath = directory.path;
+    final tempFile = await File('$directoryPath/$path').writeAsBytes(
+      byteData.buffer.asUint8List(
+        byteData.offsetInBytes,
+        byteData.lengthInBytes,
       ),
     );
+    await QuickLook.openURL(
+      tempFile.path,
+      isDismissable: isDismissable,
+    );
+    _resetTimer();
+    _timer?.cancel();
   }
+
+  Future<void> _openImages() async {
+    const paths = ['lorem_ipsum.pdf', 'image1.jpg', 'image2.jpg'];
+    final directory = await getApplicationDocumentsDirectory();
+    final directoryPath = directory.path;
+    final finalPaths = <String>[];
+    _resetTimer();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _incrementTimer();
+    });
+    for (final path in paths) {
+      final byteData = await rootBundle.load('assets/$path');
+      final tempFile = await File(
+        '$directoryPath/$path',
+      ).writeAsBytes(
+        byteData.buffer.asUint8List(
+          byteData.offsetInBytes,
+          byteData.lengthInBytes,
+        ),
+      );
+      finalPaths.add(tempFile.path);
+    }
+    await QuickLook.openURLs(
+      resourceURLs: finalPaths,
+      initialIndex: finalPaths.length - 1,
+      isDismissable: isDismissable,
+    );
+    _resetTimer();
+    _timer?.cancel();
+  }
+
+  void _toggleDismissable(bool newValue) => setState(
+        () => isDismissable = newValue,
+      );
+
+  void _resetTimer() => setState(() {
+        secondsPassedSinceLastOpen = 0;
+      });
+
+  void _incrementTimer() => setState(() {
+        secondsPassedSinceLastOpen++;
+      });
 }
