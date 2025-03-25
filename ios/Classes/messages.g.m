@@ -76,7 +76,8 @@ void SetUpQLQuickLookApiWithSuffix(id<FlutterBinaryMessenger> binaryMessenger, N
   messageChannelSuffix = messageChannelSuffix.length > 0 ? [NSString stringWithFormat: @".%@", messageChannelSuffix] : @"";
   /// Opens file saved at [url] in iOS QuickLook
   ///
-  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
+  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable
+  /// by a swipe from top to bottom
   ///
   /// The file should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
   {
@@ -99,10 +100,12 @@ void SetUpQLQuickLookApiWithSuffix(id<FlutterBinaryMessenger> binaryMessenger, N
       [channel setMessageHandler:nil];
     }
   }
-  /// Opens files saved at [resourceURLs] in iOS QuickLook (user can swipe between them)
+  /// Opens files saved at [resourceURLs] in iOS QuickLook
+  /// (user can swipe between them)
   ///
   /// Sets the current item in view to [initialIndex]
-  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable by a swipe from top to bottom
+  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable
+  /// by a swipe from top to bottom
   ///
   /// The files should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
   {

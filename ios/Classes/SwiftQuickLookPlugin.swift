@@ -82,7 +82,7 @@ class QuickLookViewController: UIViewController, QLPreviewControllerDataSource {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidAppear(_ animated: Bool) {
+    override func viewDidAppear(_: Bool) {
         if !shownResource {
             let previewController = QLPreviewController()
             previewController.dataSource = self
