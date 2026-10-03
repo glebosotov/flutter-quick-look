@@ -1,49 +1,55 @@
-import 'dart:async';
-
 import 'package:quick_look/quick_look_messages.g.dart';
 
-/// Entity for interaction with core feature
+/// Previews local files using Apple's native Quick Look on iOS.
 class QuickLook {
   static final QuickLookApi _api = QuickLookApi();
 
-  /// Opens file saved at [url] in iOS QuickLook
+  /// Opens the file at the absolute local path [url].
   ///
-  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable
-  /// by a swipe from top to bottom
+  /// Pass a file path, not a `file://` or network URL. The file must remain
+  /// readable until the preview closes; documents, cache and temporary files
+  /// are all supported.
   ///
-  /// The file should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
-  static Future<bool> openURL(
-    String url, {
-    bool isDismissable = true,
-  }) async {
+  /// Completes with `true` after dismissal, or `false` if the file cannot be
+  /// previewed, a preview is already open, or no active presenter is available.
+  /// [isDismissable] controls swipe dismissal; the Done button remains available.
+  static Future<bool> openURL(String url, {bool isDismissable = true}) async {
+    if (!_isFilePath(url)) return false;
     return _api.openURL(url, isDismissable: isDismissable);
   }
 
-  /// Opens files saved at [resourceURLs] in iOS QuickLook
-  /// (user can swipe between them)
+  /// Opens [resourceURLs] in a swipeable preview, starting at [initialIndex].
   ///
-  /// Sets the current item in view to [initialIndex]
-  /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable
-  /// by a swipe from top to bottom
-  ///
-  /// The files should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
+  /// Each entry must be an absolute local file path. An empty list, an invalid
+  /// index, or any file that cannot be previewed returns `false`.
+  /// Otherwise the result and dismissal behavior match [openURL].
   static Future<bool> openURLs({
     required List<String> resourceURLs,
     int initialIndex = 0,
     bool isDismissable = true,
   }) async {
+    if (resourceURLs.isEmpty ||
+        initialIndex < 0 ||
+        initialIndex >= resourceURLs.length ||
+        !resourceURLs.every(_isFilePath)) {
+      return false;
+    }
     return _api.openURLs(
-      resourceURLs: resourceURLs,
+      resourceURLs: List<String>.of(resourceURLs),
       initialIndex: initialIndex,
       isDismissable: isDismissable,
     );
   }
 
-  /// Returns whether iOS QuickLook
-  /// supports the saved at [url] file type (and can preview it) or not
+  /// Whether Quick Look can preview the readable file at local path [url].
   ///
-  /// The list of supported file types varies depending on iOS version
-  static Future<bool> canOpenURL(String url) {
+  /// Supported types depend on the iOS version. This does not guarantee that
+  /// every file's contents can be rendered successfully.
+  static Future<bool> canOpenURL(String url) async {
+    if (!_isFilePath(url)) return false;
     return _api.canOpenURL(url);
   }
+
+  static bool _isFilePath(String path) =>
+      path.startsWith('/') && !path.contains('\u0000');
 }

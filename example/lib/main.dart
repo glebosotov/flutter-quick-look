@@ -1,202 +1,116 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
 import 'package:quick_look/quick_look.dart';
 
-void main() {
-  runApp(const _App());
-}
+void main() => runApp(const _App());
 
 class _App extends StatelessWidget {
-  const _App({Key? key}) : super(key: key);
+  const _App();
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-        ),
-        home: const _Screen(),
-      );
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(colorSchemeSeed: Colors.indigo),
+    home: const _Screen(),
+  );
 }
 
 class _Screen extends StatefulWidget {
-  const _Screen({Key? key}) : super(key: key);
+  const _Screen();
 
   @override
   State<_Screen> createState() => _ScreenState();
 }
 
 class _ScreenState extends State<_Screen> {
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
+  bool _busy = false;
+  bool _isDismissable = true;
+  String _status = 'Choose a file to preview.';
 
-  Timer? _timer;
-  bool? _canOpenFileType;
-  int secondsPassedSinceLastOpen = 0;
-  bool isDismissable = false;
+  Future<void> _preview(List<String> assets, {int initialIndex = 0}) async {
+    setState(() {
+      _busy = true;
+      _status = 'Preparing files…';
+    });
+    try {
+      final directory = Directory.systemTemp;
+      final paths = <String>[];
+      for (final asset in assets) {
+        final data = await rootBundle.load('assets/$asset');
+        // Exercise spaces, Unicode and reserved URL characters in real paths.
+        final file = File('${directory.path}/Пример #100% $asset');
+        await file.writeAsBytes(
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+        );
+        paths.add(file.path);
+      }
+      if (!mounted) return;
+      final canOpen = await QuickLook.canOpenURL(paths[initialIndex]);
+      if (!mounted) return;
+      if (!canOpen) {
+        setState(() => _status = 'Quick Look cannot preview this file.');
+        return;
+      }
+      setState(() => _status = 'Waiting for the native preview to close…');
+      final opened = paths.length == 1
+          ? await QuickLook.openURL(paths.single, isDismissable: _isDismissable)
+          : await QuickLook.openURLs(
+              resourceURLs: paths,
+              initialIndex: initialIndex,
+              isDismissable: _isDismissable,
+            );
+      if (!mounted) return;
+      setState(
+        () => _status = opened
+            ? 'Preview closed; the future completed.'
+            : 'Preview could not be presented.',
+      );
+    } catch (error) {
+      if (mounted) setState(() => _status = 'Preview failed: $error');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('QuickLook for iOS'),
-        ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: _openPdf,
-                  child: const Text(
-                    'Open single demo PDF',
-                    style: TextStyle(fontSize: 24),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: _openInvalidFile,
-                  child: const Text(
-                    'Try to open an unsupported file',
-                    style: TextStyle(fontSize: 24),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: _openImages,
-                  child: const Text(
-                    'Open multiple assets',
-                    style: TextStyle(fontSize: 24),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Seconds since last open: $secondsPassedSinceLastOpen',
-                  style: const TextStyle(fontSize: 18),
-                  textAlign: TextAlign.center,
-                ),
-                const Text(
-                  '(method awaits native modal close before resolving future)',
-                  style: TextStyle(fontSize: 12),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Can open file: $_canOpenFileType',
-                  style: const TextStyle(fontSize: 18),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                ListTile(
-                  leading: const Text('isDismissable'),
-                  trailing: Switch(
-                    value: isDismissable,
-                    onChanged: _toggleDismissable,
-                  ),
-                ),
-                const Spacer(),
-                const Text(
-                  'Photos from \nhttps://unsplash.com/photos/QeVmJxZOv3k\nhttps://unsplash.com/photos/Yh2Y8avvPec',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-              ],
-            ),
+    appBar: AppBar(title: const Text('Quick Look for iOS')),
+    body: SafeArea(
+      child: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          FilledButton(
+            onPressed: _busy ? null : () => _preview(['lorem_ipsum.pdf']),
+            child: const Text('Preview PDF'),
           ),
-        ),
-      );
-
-  Future<void> _openPdf() async {
-    const path = 'lorem_ipsum.pdf';
-    final byteData = await rootBundle.load('assets/$path');
-    _resetTimer();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _incrementTimer();
-    });
-    final directory = await getApplicationDocumentsDirectory();
-    final directoryPath = directory.path;
-    final tempFile = await File('$directoryPath/$path').writeAsBytes(
-      byteData.buffer.asUint8List(
-        byteData.offsetInBytes,
-        byteData.lengthInBytes,
+          FilledButton(
+            onPressed: _busy
+                ? null
+                : () => _preview([
+                    'lorem_ipsum.pdf',
+                    'image1.jpg',
+                    'image2.jpg',
+                  ], initialIndex: 2),
+            child: const Text('Preview multiple files'),
+          ),
+          SwitchListTile(
+            title: const Text('Allow swipe to dismiss'),
+            value: _isDismissable,
+            onChanged: _busy
+                ? null
+                : (value) => setState(() => _isDismissable = value),
+          ),
+          const SizedBox(height: 24),
+          Text(_status, textAlign: TextAlign.center),
+          const SizedBox(height: 48),
+          const Text(
+            'Photos: unsplash.com/photos/QeVmJxZOv3k and unsplash.com/photos/Yh2Y8avvPec',
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
-    );
-
-    final canOpenUrl = await QuickLook.canOpenURL(tempFile.path);
-    setState(() {
-      _canOpenFileType = canOpenUrl;
-    });
-    if (canOpenUrl) {
-      await QuickLook.openURL(
-        tempFile.path,
-        isDismissable: isDismissable,
-      );
-    }
-    _resetTimer();
-    _timer?.cancel();
-  }
-
-  Future<void> _openInvalidFile() async {
-    const path = 'invalid.file';
-    final directory = await getApplicationDocumentsDirectory();
-    final directoryPath = directory.path;
-    final tempFile =
-        await File('$directoryPath/$path').writeAsBytes([1, 2, 3, 4]);
-
-    final canOpenUrl = await QuickLook.canOpenURL(tempFile.path);
-    setState(() {
-      _canOpenFileType = canOpenUrl;
-    });
-  }
-
-  Future<void> _openImages() async {
-    const paths = ['lorem_ipsum.pdf', 'image1.jpg', 'image2.jpg'];
-    final directory = await getApplicationDocumentsDirectory();
-    final directoryPath = directory.path;
-    final finalPaths = <String>[];
-    _resetTimer();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _incrementTimer();
-    });
-    for (final path in paths) {
-      final byteData = await rootBundle.load('assets/$path');
-      final tempFile = await File(
-        '$directoryPath/$path',
-      ).writeAsBytes(
-        byteData.buffer.asUint8List(
-          byteData.offsetInBytes,
-          byteData.lengthInBytes,
-        ),
-      );
-      finalPaths.add(tempFile.path);
-    }
-    await QuickLook.openURLs(
-      resourceURLs: finalPaths,
-      initialIndex: finalPaths.length - 1,
-      isDismissable: isDismissable,
-    );
-    _resetTimer();
-    _timer?.cancel();
-  }
-
-  void _toggleDismissable(bool newValue) => setState(
-        () => isDismissable = newValue,
-      );
-
-  void _resetTimer() => setState(() {
-        secondsPassedSinceLastOpen = 0;
-      });
-
-  void _incrementTimer() => setState(() {
-        secondsPassedSinceLastOpen++;
-      });
+    ),
+  );
 }
