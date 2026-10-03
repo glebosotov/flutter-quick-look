@@ -4,9 +4,8 @@ import 'package:pigeon/pigeon.dart';
   PigeonOptions(
     dartOut: 'lib/quick_look_messages.g.dart',
     dartOptions: DartOptions(),
-    objcHeaderOut: 'ios/Classes/messages.g.h',
-    objcSourceOut: 'ios/Classes/messages.g.m',
-    objcOptions: ObjcOptions(prefix: 'QL'),
+    swiftOut: 'ios/quick_look/Sources/quick_look/messages.g.swift',
+    swiftOptions: SwiftOptions(),
     dartPackageName: 'quick_look',
   ),
 )
@@ -17,12 +16,9 @@ abstract class QuickLookApi {
   /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable
   /// by a swipe from top to bottom
   ///
-  /// The file should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
+  /// Pass an absolute local file path, not a URL string.
   @async
-  bool openURL(
-    String url, {
-    bool isDismissable = true,
-  });
+  bool openURL(String url, {bool isDismissable = true});
 
   /// Opens files saved at [resourceURLs] in iOS QuickLook
   /// (user can swipe between them)
@@ -31,7 +27,7 @@ abstract class QuickLookApi {
   /// (iOS 13+) [isDismissable] configures whether QuickLook is dismissable
   /// by a swipe from top to bottom
   ///
-  /// The files should be saved at the ApplicationDocumentsDirectory (check out the example at https://pub.dev/packages/quick_look/example)
+  /// Pass absolute local file paths, not URL strings.
   @async
   bool openURLs({
     required List<String> resourceURLs,
